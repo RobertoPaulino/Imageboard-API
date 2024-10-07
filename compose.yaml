@@ -30,7 +30,7 @@ services:
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=postgresjh
       - POSTGRES_DB=imageboard
       - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
