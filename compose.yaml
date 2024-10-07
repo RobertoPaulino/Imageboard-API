@@ -1,9 +1,30 @@
 services:
-  server:
-    image:
-    container_name: imageboard-api
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=robert@imageboard-api.online"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     ports:
-      - 8080:8080
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+  imageboard:
+    image: ghcr.io/robertopaulino/imageboard-api-image
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.guestbook.rule=Host(`imageboard-api.online`)"
+      - "traefik.http.routers.guestbook.entrypoints=websecure"
+      - "traefik.http.routers.guestbook.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
     secrets:
       - db-password
     environment:
@@ -13,6 +34,10 @@ services:
       - POSTGRES_DB=imageboard
       - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
+    deploy:
+      mode: replicated
+      replicas: 3
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -26,7 +51,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=imageboard
+      - POSTGRES_DB=guestbook
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     expose:
       - 5432
@@ -37,6 +62,7 @@ services:
       retries: 5
 volumes:
   db-data:
+  letsencrypt:
 secrets:
   db-password:
     file: db/password.txt
