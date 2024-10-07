@@ -51,7 +51,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=guestbook
+      - POSTGRES_DB=imageboard
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     expose:
       - 5432
