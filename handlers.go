@@ -10,20 +10,18 @@ import (
 func getPosts(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		rows, err := db.Query("SELECT id, username, body, latitude, longitude, created_at FROM posts")
-
 		if err != nil {
-			http.Error(w, "Failed to get posts", http.StatusInternalServerError)
+			http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 			return
 		}
-
 		defer rows.Close()
 
 		var posts []Post
 		for rows.Next() {
 			var post Post
-			err = rows.Scan(&post.ID, &post.Username, &post.Body, &post.Latitude, &post.Longitude, &post.CreatedAt)
+			err := rows.Scan(&post.ID, &post.Username, &post.Body, &post.Latitude, &post.Longitude, &post.CreatedAt)
 			if err != nil {
-				http.Error(w, "Failed to scan posts", http.StatusInternalServerError)
+				http.Error(w, "Failed to scan post", http.StatusInternalServerError)
 				return
 			}
 			posts = append(posts, post)

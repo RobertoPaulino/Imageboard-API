@@ -1,8 +1,11 @@
-module Imageboard-API
+module main
 
-go 1.23.0
+go 1.23
 
-require modernc.org/sqlite v1.33.1
+require (
+	github.com/lib/pq v1.10.9
+	modernc.org/sqlite v1.33.1
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
